@@ -18,6 +18,8 @@ pub struct Game {
   pub reward_mint: Pubkey,
   //game escrow pubkey
   pub escrow: Pubkey,
+  //players pubkeys 
+  pub players: [Pubkey]
 }
 
 impl Game{

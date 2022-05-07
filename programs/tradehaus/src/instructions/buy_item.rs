@@ -22,18 +22,41 @@ pub struct BuyItem<'info>{
   #[account(mut)]
   pub asset_mint: Account<'info, Mint>,
 
+  #[account(mut)]
+  pub game_config: Account<'info, Game>,
+
 }
 
 #[error_code]
 pub enum ErrorCode {
-  #[msg("Game is currently closed")]
+  #[msg("Game is currently closed!")]
   GameClosed,
-  #[msg("Insufficient Balance")
-  InsufficientBalance,
+  #[msg("Host not allowed!")
+  HostDenied,
+  #[msg("Max player capacity reached!")]
+  MaxPlayers,
 }
 
 impl <'info> BuyItem <'info> {
   // implement required functions for BuyItem struct
+
+  //check if player is new.. if new add into list of players  ( not sure how to implement boolean condition for this)
+  fn check_player_is_new (&Self, player: Pubkey) -> bool {
+    if player == game_config.host.key() {
+      return Err(Error!(ErrorCode::HostDenied));
+    }
+    let player_list = &Self.game_config.players;
+    if player_list.iter().any(|x| *x == player) {
+      return True;
+    }
+    let default_pubkey = Pubkey::default();
+    if let Some(idx) = player_list.iter().position(|x| *x == default_pubkey) {
+      player_list[idx] = player;
+    } else {
+        return Err(Error!(ErrorCode::MaxPlayers));
+    }
+    Ok (())
+  }
 
   //check if player has enough funds to place order 
   fn has_enough_funds(&self, amount:u32) -> bool {
@@ -49,6 +72,7 @@ impl <'info> BuyItem <'info> {
 
   //check which asset player wants to place buy order, update that asset_qty in fund account by amount in usd/asset_price 
   // will there be a vector of some sort where we have the public key of the assets? like btc, eth, sol, link etc.. 
+  let qty = amount / asset_price  
   
   //update user fund account 
   ctx.accounts.player_fund.'' qty = ctx
@@ -87,6 +111,7 @@ impl <'info> BuyItem <'info> {
 pub fn handler(ctx: Context<BuyItem>, amount: u32) -> Result<()> {
   // core instruction to allow user to choose item (coins) they wanna buy
   // indicate amount to buy, and eventually converted to fiat. end_datetime > current
+  //need price feed... everytime player places order, grab associated price feed address 
   if end_datetime < current {
     return Err(error!(ErrorCode::GameClosed));
 
