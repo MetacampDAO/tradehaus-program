@@ -41,11 +41,11 @@ impl <'info> BuyItem <'info> {
   // implement required functions for BuyItem struct
 
   //check if player is new.. if new add into list of players  ( not sure how to implement boolean condition for this)
-  fn check_player_is_new (&Self, player: Pubkey) -> bool {
+  fn check_player_is_new (&self, player: Pubkey) -> bool {
     if player == game_config.host.key() {
       return Err(Error!(ErrorCode::HostDenied));
     }
-    let player_list = &Self.game_config.players;
+    let player_list = &self.game_config.players;
     if player_list.iter().any(|x| *x == player) {
       return True;
     }
@@ -69,44 +69,17 @@ impl <'info> BuyItem <'info> {
       return False;
     }
   }
-
   //check which asset player wants to place buy order, update that asset_qty in fund account by amount in usd/asset_price 
   // will there be a vector of some sort where we have the public key of the assets? like btc, eth, sol, link etc.. 
-  let qty = amount / asset_price  
-  
-  //update user fund account 
-  ctx.accounts.player_fund.'' qty = ctx
-  .accounts
-  .player_fund
-  .asset_qty
-  .checked_add(amount)
-  .unwrap();
-
-
-  //Transfer amount of usd from player to game escrow wallet
-  fn submit_buy_order(&self, amount:u32, asset: Pubkey) -> bool {
-    let sender = &self.player;
-    let sender_tokens = &self.player_token_wallet;
-    let recipient_tokens = &self.game_escrow_wallet;
-    let token_program = &self.token_program;
-
-    let context::Transfer {
-        from: sender_tokens.to_account_info(),
-        to: recipient_tokens.to_account_info(),
-        authority: sender.to_account_info(),
-    };
-
-    token::Transfer(
-      CpiContext::new(
-        token_program.to_account_info(),
-        context
-      ),
-      amount,
-    );
-
-    return True;
-  }
-}
+  //update user fund account
+  fn place_order(&self, amount:u32) -> Result<()> {
+    let qty = amount / asset_price
+    ctx.accounts.player_fund.'' qty = ctx
+    .accounts
+    .player_fund
+    .asset_qty
+    .checked_add(amount)
+    .unwrap();
 
 pub fn handler(ctx: Context<BuyItem>, amount: u32) -> Result<()> {
   // core instruction to allow user to choose item (coins) they wanna buy
@@ -122,7 +95,7 @@ pub fn handler(ctx: Context<BuyItem>, amount: u32) -> Result<()> {
      
   }
 
-  ctx.accounts.submit_buy_order(amount);
+  ctx.accounts.place_order(amount);
 
   Ok(())
 }

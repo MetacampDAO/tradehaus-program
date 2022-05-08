@@ -31,7 +31,9 @@ pub enum ErrorCode {
 impl <'info> DistributeRewards <'info> {
   // implement required functions for DistributeRewards struct
   //grab addresses from vecotr / hashmap from game account 
-  fn transfer_reward(&self, amount:u32, winners: Pubkey) -> Result<()> {
+   
+  fn transfer_reward(&self, amount:u32) -> Result<()> {
+    
     let sender = &self.game;
     let sender_tokens = &self.reward_escrow;
     let recipient_tokens = &self.player_token_wallet;
