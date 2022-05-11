@@ -4,6 +4,10 @@ use anchor_lang::prelude::*;
 pub struct Game {
   //game host pubkey 
   pub host: Pubkey,
+  //host reward token account 
+  pub host_reward_account: Pubkey,
+  //amount of reward to be set by host 
+  pub reward_amount: u128,
   //join time 
   pub join_time: u64,
   //start time
@@ -18,8 +22,8 @@ pub struct Game {
   pub reward_mint: Pubkey,
   //game escrow pubkey
   pub escrow: Pubkey,
-  //players pubkeys 
-  pub players: [Pubkey]
+  //game stated 
+  pub game_ended: bool,
 }
 
 impl Game{
