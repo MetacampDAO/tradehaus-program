@@ -13,9 +13,9 @@ pub struct Fund {
   //SOL qty
   pub sol_qty: u128,
   //FakeUSD qty 
-  pub usd: u128,
+  pub usd_qty: u128,
   //game pubkey,
-  pub game: Pubkey,
+  pub game_config: Pubkey,
 }
 
 impl Fund{

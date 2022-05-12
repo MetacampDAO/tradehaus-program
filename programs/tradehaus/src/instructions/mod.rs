@@ -1,9 +1,7 @@
-pub mod buy_item;
+pub mod swap_items;
 pub mod create_game;
 pub mod distribute_rewards;
-pub mod sell_item;
 
-pub use buy_item::*;
+pub use swap_items::*;
 pub use create_game::*;
 pub use distribute_rewards::*;
-pub use sell_item::*;
