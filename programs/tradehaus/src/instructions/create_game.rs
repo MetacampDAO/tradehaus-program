@@ -44,6 +44,7 @@ impl <'info> CreateGame <'info> {
     join: u64, 
     start: u64, 
     end: u64, 
+    start_usd: u64, 
     winners: u8, 
     max_players: u64,
     reward_amount: u64,
@@ -60,6 +61,7 @@ impl <'info> CreateGame <'info> {
     self.game_config.join_time = join;
     self.game_config.start_time = start; 
     self.game_config.end_time = end;
+    self.game_config.start_usd = start_usd as u128;
     self.game_config.current_cap = 0;
     self.game_config.max_cap = max_players;
     self.game_config.winners = winners;
@@ -127,6 +129,7 @@ pub fn handler(
   join: u64, 
   start: u64, 
   end: u64, 
+  start_usd: u64, 
   winners: u8, 
   max_players: u64,
   reward_amount: u64,
@@ -137,6 +140,7 @@ pub fn handler(
     join, 
     start, 
     end, 
+    start_usd,
     winners, 
     max_players,
     reward_amount,
