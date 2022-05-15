@@ -37,6 +37,9 @@ pub struct JoinGame<'info> {
 
 impl<'info> JoinGame<'info> {
     //implement required functions for JoinGame struct
+
+    // TO-CHANGE AND REMOVE AFTER:
+    // Change name to set_fund_incr_cap_config
     fn set_fund_config(
       &mut self,
       fund_bump: u8,
@@ -55,6 +58,9 @@ impl<'info> JoinGame<'info> {
       self.fund.sol_qty = 0;
       self.fund.usd_qty = self.game_config.start_usd;
       self.fund.fund_bump = fund_bump;
+
+      // TO-CHANGE AND REMOVE AFTER:
+      // increment game_config.current_cap below
     }  
 }
 
