@@ -141,6 +141,7 @@ describe("tradehaus", () => {
       1,
       2,
       3,
+      100000,
       3,
       3,
       30,
@@ -167,6 +168,7 @@ describe("tradehaus", () => {
     assert.ok(gameAcc.joinTime.toNumber() == 1)
     assert.ok(gameAcc.startTime.toNumber() == 2)
     assert.ok(gameAcc.endTime.toNumber() == 3)
+    assert.ok(gameAcc.startUsd.toNumber() == 100000)
     assert.ok(gameAcc.currentCap.toNumber() == 0)
     assert.ok(gameAcc.maxCap.toNumber() == 3)
     assert.ok(gameAcc.winners == 3)
@@ -182,7 +184,7 @@ describe("tradehaus", () => {
 
     assert.ok(Number(_hostTokenAccountReward.amount) == 0);
     assert.ok(_rewardEscrow.owner.equals(_vault_authority_pda));
-    assert.ok(Number(_rewardEscrow.amount) == 30);
+    assert.ok(Number(_rewardEscrow.amount) == 30);  
 
 
   });

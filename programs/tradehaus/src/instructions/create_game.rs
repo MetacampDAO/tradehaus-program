@@ -41,10 +41,11 @@ impl<'info> CreateGame<'info> {
   //not quite sure on this portion on how to set it up.. any pointers will be great!
   fn set_game_config(
     &mut self,
-    join: u64,
-    start: u64,
-    end: u64,
-    winners: u8,
+    join: u64, 
+    start: u64, 
+    end: u64, 
+    start_usd: u64, 
+    winners: u8, 
     max_players: u64,
     reward_amount: u64,
     reward_escrow_bump: u8,
@@ -55,6 +56,7 @@ impl<'info> CreateGame<'info> {
     self.game_config.join_time = join;
     self.game_config.start_time = start;
     self.game_config.end_time = end;
+    self.game_config.start_usd = start_usd as u128;
     self.game_config.current_cap = 0;
     self.game_config.max_cap = max_players;
     self.game_config.winners = winners;
@@ -105,11 +107,12 @@ impl<'info> CreateGame<'info> {
 }
 
 pub fn handler(
-  ctx: Context<CreateGame>,
-  join: u64,
-  start: u64,
-  end: u64,
-  winners: u8,
+  ctx: Context<CreateGame>, 
+  join: u64, 
+  start: u64, 
+  end: u64, 
+  start_usd: u64, 
+  winners: u8, 
   max_players: u64,
   reward_amount: u64,
   reward_escrow_bump: u8,
@@ -117,10 +120,11 @@ pub fn handler(
   // core instruction to allow hosts to create a game account
   // must pass in required settings (join, start, end, rewards, etc) to game account
   ctx.accounts.set_game_config(
-    join,
-    start,
-    end,
-    winners,
+    join, 
+    start, 
+    end, 
+    start_usd,
+    winners, 
     max_players,
     reward_amount,
     reward_escrow_bump,
