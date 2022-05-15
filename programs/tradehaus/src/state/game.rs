@@ -2,36 +2,36 @@ use anchor_lang::prelude::*;
 
 #[account]
 pub struct Game {
-  //game host pubkey 
+  //game host pubkey
   pub host: Pubkey,
-  //host reward token account 
+  //host reward token account
   pub host_reward_account: Pubkey,
-  //amount of reward to be set by host 
+  //amount of reward to be set by host
   pub reward_amount: u64,
-  //join time 
+  //join time
   pub join_time: u64,
   //start time
   pub start_time: u64,
-  //end time 
+  //end time
   pub end_time: u64,
-  //starting usd capital 
+  //starting usd capital
   pub start_usd: u128,
-  //current no. of participants 
+  //current no. of participants
   pub current_cap: u64,
-  //max no. of participants 
+  //max no. of participants
   pub max_cap: u64,
-  //no. of winnners 
+  //no. of winnners
   pub winners: u8,
-  //reward token mint 
+  //reward token mint
   pub reward_mint: Pubkey,
   //game escrow pubkey
   pub reward_escrow: Pubkey,
   // game escrow bump
   pub reward_escrow_bump: u8,
-  //game stated 
+  //game stated
   pub game_ended: bool,
 }
 
-impl Game{
+impl Game {
   // leave empty
 }
