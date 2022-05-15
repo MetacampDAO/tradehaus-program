@@ -6,6 +6,8 @@ use crate::state::*;
 #[derive(Accounts)]
 pub struct JoinGame<'info> {
     //define accounts taken in by the JoinGame instructions
+    // TO-CHANGE AND REMOVE AFTER:
+    // Clock::get().unwrap().unix_timestamp > game_config.join_time.try_into().unwrap() should be >= 
     #[account(
         mut, 
         constraint = Clock::get().unwrap().unix_timestamp > game_config.join_time.try_into().unwrap(), 
@@ -17,6 +19,8 @@ pub struct JoinGame<'info> {
     #[account(mut)]
     pub player: Signer<'info>,
 
+    // TO-CHANGE AND REMOVE AFTER:
+    // Add in "player-fund" as seed too
     #[account(
         init, 
         seeds = [player.to_account_info().key.as_ref(), 
