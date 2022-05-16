@@ -127,10 +127,9 @@ describe("tradehaus", () => {
   });
 
   it ('creates game', async () => {
-    const [reward_escrow_pda, reward_escrow_bump] = await PublicKey.findProgramAddress(
-      [Buffer.from(anchor.utils.bytes.utf8.encode("reward-escrow")), gameConfig.publicKey.toBytes()],
-      th.tradehausProgram.programId
-    )
+    const [reward_escrow_pda, reward_escrow_bump] = await th.findRewardEscrowPDA(gameConfig.publicKey);
+
+    const _START_TIME = Math.ceil(Date.now()/1000 + 30) 
 
     await th.createGame(
       gameConfig,
@@ -139,8 +138,8 @@ describe("tradehaus", () => {
       mintReward,
       reward_escrow_pda,
       1,
-      2,
-      3,
+      _START_TIME,
+      2000000000,
       100000,
       3,
       3,
@@ -166,8 +165,8 @@ describe("tradehaus", () => {
 
     assert.ok(gameAcc.rewardAmount.toNumber() == 30)
     assert.ok(gameAcc.joinTime.toNumber() == 1)
-    assert.ok(gameAcc.startTime.toNumber() == 2)
-    assert.ok(gameAcc.endTime.toNumber() == 3)
+    assert.ok(gameAcc.startTime.toNumber() == _START_TIME)
+    assert.ok(gameAcc.endTime.toNumber() == 2000000000)
     assert.ok(gameAcc.startUsd.toNumber() == 100000)
     assert.ok(gameAcc.currentCap.toNumber() == 0)
     assert.ok(gameAcc.maxCap.toNumber() == 3)
@@ -189,135 +188,36 @@ describe("tradehaus", () => {
 
   });
 
-  //players_fund account (this is for join game )
-  let player1FundAccount = null;
-  let player2FundAccount = null;
-  let player3FundAccount = null;
-
-  let mintBTC = null;
-  let mintETH = null;
-  let mintLINK = null;
-  let mintSOL = null;
-  let mintUSD = null;
-
-  let player_fund_bump: number = null;
-
-  it("Initialize player fund token accounts", async ()=> {
-    // airdrop to host 
-    await provider.connection.confirmTransaction(
-      await provider.connection.requestAirdrop(host.publicKey, 1000000000),
-      "confirmed"
-    );
-    // fund players fund_account
-    await provider.sendAndConfirm(
-      (() => {
-        const tx = new Transaction();
-        tx.add(
-          SystemProgram.transfer({
-            fromPubkey: host.publicKey,
-            toPubkey: player1.publicKey,
-            lamports: 100000000,
-          }),
-          SystemProgram.transfer({
-            fromPubkey: host.publicKey,
-            toPubkey: player2.publicKey,
-            lamports: 100000000,
-          }),
-          SystemProgram.transfer({
-            fromPubkey: host.publicKey,
-            toPubkey: player3.publicKey,
-            lamports: 100000000,
-          }),
-        );
-        return tx;
-      })(),
-      [host]
-    );
-
-    //create mint of btc, eth, sol etc 
-    mintBTC = await createMint(
-      provider.connection,
-      host,
-      host.publicKey,
-      null,
-      0
-    );
-
-    mintETH = await createMint(
-      provider.connection,
-      host,
-      host.publicKey,
-      null,
-      0
-    );
-
-    mintLINK = await createMint(
-      provider.connection,
-      host,
-      host.publicKey,
-      null,
-      0
-    );
-
-    mintSOL = await createMint(
-      provider.connection,
-      host,
-      host.publicKey,
-      null,
-      0
-    );
-
-    mintUSD = await createMint(
-      provider.connection,
-      host,
-      host.publicKey,
-      null,
-      0
-    );
-
-    //create player_fund token account
-    player1FundAccount = await createAssociatedTokenAccount(
-      provider.connection,
-      player1,
-      mintBTC,
-      mintETH,
-      mintLINK,
-      mintSOL,
-      mintUSD,
-      player1.publicKey
-    );
-
-    player2FundAccount = await createAssociatedTokenAccount(
-      provider.connection,
-      player2,
-      mintBTC,
-      mintETH,
-      mintLINK,
-      mintSOL,
-      mintUSD,
-      player2.publicKey
-    );
-
-    player3FundAccount = await createAssociatedTokenAccount(
-      provider.connection,
-      player3,
-      mintBTC,
-      mintETH,
-      mintLINK,
-      mintSOL,
-      mintUSD,
-      player3.publicKey
-    );
-  });
-
   it('join game', async () => {
-    await th.joinGame(
-      gameConfig,
-      player1FundAccount,
-      player_fund_bump,
+    const [player_fund_pda, player_fund_bump] = await th.findPlayerFundPDA(
+      player1.publicKey,
+      gameConfig.publicKey
     );
-    
-    
+
+    await th.joinGame(
+      gameConfig.publicKey,
+      player1,
+      player_fund_pda,
+      player_fund_bump
+    );
+
+    const _player1FundAcc = await th.fetchFundAcc(player_fund_pda);
+    const _gameAcc = await th.fetchGameAcc(gameConfig.publicKey);
+
+    // test that all coins initiate to 0
+    assert.ok(Number(_player1FundAcc.btcQty) == 0);
+    assert.ok(Number(_player1FundAcc.ethQty) == 0);
+    assert.ok(Number(_player1FundAcc.linkQty) == 0);
+    assert.ok(Number(_player1FundAcc.solQty) == 0);
+
+    // test that player starting USD matches game configs'
+    assert.ok(Number(_player1FundAcc.usdQty) == 100000);
+
+    // test that player fund bump is being stored
+    assert.ok(_player1FundAcc.fundBump == player_fund_bump);
+
+    // test that current cap is being incremented
+    assert.ok(Number(_gameAcc.currentCap) == 1);
   })
 
 

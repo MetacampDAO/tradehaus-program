@@ -23,8 +23,8 @@ pub struct JoinGame<'info> {
     // Add in "player-fund" as seed too
     #[account(
         init, 
-        seeds = [player.to_account_info().key.as_ref(), 
-                 player_fund.to_account_info().key.as_ref(),
+        seeds = [b"player-fund".as_ref(), 
+                 player.to_account_info().key.as_ref(),
                  game_config.to_account_info().key.as_ref()],
         bump,
         payer = player,
@@ -32,8 +32,7 @@ pub struct JoinGame<'info> {
     )]
     pub player_fund: Account<'info, Fund>,
 
-    pub system_program: Program<'info, System>,
-    pub rent: Sysvar<'info, Rent>,
+    pub system_program: Program<'info, System>
 }
 
 impl<'info> JoinGame<'info> {

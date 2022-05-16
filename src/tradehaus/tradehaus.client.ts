@@ -59,7 +59,29 @@ export class TradehausClient extends AccountUtils {
     return this.tradehausProgram.account.game.fetch(game);
   }
 
+  async fetchFundAcc(fund: PublicKey) {
+    return this.tradehausProgram.account.fund.fetch(fund);
+  }
+
   // --------------------------------------- find PDA addresses
+
+  async findRewardEscrowPDA(gameConfig: PublicKey){
+    return await PublicKey.findProgramAddress(
+      [Buffer.from(anchor.utils.bytes.utf8.encode("reward-escrow")), gameConfig.toBytes()],
+      this.tradehausProgram.programId
+    )
+  }
+
+  async findPlayerFundPDA(player: PublicKey, gameConfig: PublicKey){
+    return await PublicKey.findProgramAddress(
+      [Buffer.from(
+        anchor.utils.bytes.utf8.encode("player-fund")),
+        player.toBytes(),
+        gameConfig.toBytes()
+      ],
+      this.tradehausProgram.programId
+    )
+  }
 
   // --------------------------------------- find all PDA addresses
 
@@ -99,6 +121,27 @@ export class TradehausClient extends AccountUtils {
       rewardEscrow,
       systemProgram: SystemProgram.programId,
       rent: anchor.web3.SYSVAR_RENT_PUBKEY
+    }).signers(signers)
+    .rpc();
+
+    return { txSig };
+  }
+
+  async joinGame(
+    gameConfig: PublicKey,
+    player: PublicKey | Keypair,
+    playerFund: PublicKey,
+    playerFundBump: number
+  ) {
+    const signers = [];
+    if (isKp(player)) signers.push(<Keypair>player)
+    const txSig = await this.tradehausProgram.methods.joinGame(
+      playerFundBump
+    ).accounts({
+      gameConfig: gameConfig,
+      player: isKp(player)? (<Keypair>player).publicKey : player,
+      playerFund,
+      systemProgram: SystemProgram.programId
     }).signers(signers)
     .rpc();
 
