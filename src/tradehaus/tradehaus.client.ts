@@ -147,4 +147,30 @@ export class TradehausClient extends AccountUtils {
 
     return { txSig };
   }
+
+  async swapItems(
+    playerFund: PublicKey,
+    player: PublicKey | Keypair,
+    gameConfig: PublicKey,
+  ) {
+    //whenever, this function is called
+    //check if player is keypair or publickey 
+    // if it is, push it onto an array/list to store it
+    //however, will this double count? 
+    const signers = [];
+    if (isKp(player)) signers.push(<Keypair>player)
+    const txSig = await this.tradehausProgram.methods.swapItems(
+      amount,
+      sellCoin,
+      buyCoin,
+    ).accounts({
+      playerFund,
+      player: isKp(player)? (<Keypair>player).publicKey : player,
+      gameConfig: gameConfig,
+      systemProgram: SystemProgram.programId
+    }).signers(signers)
+    .rpc();
+
+    return { txSig };  
+  }
 }

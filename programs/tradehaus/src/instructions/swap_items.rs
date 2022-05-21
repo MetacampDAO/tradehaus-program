@@ -24,13 +24,8 @@ pub struct SwapItems<'info> {
 }
 
 impl<'info> SwapItems<'info> {
-  // // implement required functions for BuyItem struct
-  fn convert_size(v: u8) -> u128 {
-    u128::from(v)
-  };
-
   fn swap_items(&mut self, amount: u128, sell_coin: u8, buy_coin: u8) {
-    let sell_coin_fund = match sell_coin {
+    let mut sell_coin_fund = match sell_coin {
       1 => self.player_fund.btc_qty,
       2 => self.player_fund.eth_qty,
       3 => self.player_fund.link_qty,
@@ -38,9 +33,13 @@ impl<'info> SwapItems<'info> {
       5 => self.player_fund.usd_qty,
       _ => self.player_fund.usd_qty,
     };
+    if sell_coin_fund < amount {
+      // throw error
+      panic!("Error");
+    }
     sell_coin_fund -= amount;
 
-    let buy_coin_fund = match buy_coin {
+    let mut buy_coin_fund = match buy_coin {
       1 => self.player_fund.btc_qty,
       2 => self.player_fund.eth_qty,
       3 => self.player_fund.link_qty,
@@ -52,17 +51,22 @@ impl<'info> SwapItems<'info> {
       .checked_mul(amount)
       .unwrap()
       .checked_div(convert_size(1)) //price of buy_coin set to 1 for now
-      .unwrap(); 
+      .unwrap();
   }
 }
 
-pub fn handler(ctx: Context<SwapItems>, amount: u128, sell_coin: u8, buy_coin: u8) -> Result<()> {
-  //   check if amount is <= coin qty...  amount <=
-  ctx.accounts.swap_items(amount, sell_coin, buy_coin);
-  // // core instruction to allow user to choose item (coins) they wanna buy
-  // //need price feed... everytime player places order, grab associated price feed address
+fn convert_size(v: u8) -> u128 {
+  u128::from(v)
+}
 
-  // } else if !ctx.accounts.has_enough_funds(amount) {
-  //   return Err(error!(ErrorCode::InsufficientBalance));
+pub fn handler(ctx: Context<SwapItems>, amount: u128, sell_coin: u8, buy_coin: u8) -> Result<()> {
+  // check if amount is <= coin qty... not sure how to write this
+  // check if all coin_qty is 0
+  //if yes, then check that amount <= player_fund.usd_qty
+  // if no , then check if amount <= player_fund.sell_coin_qty
+  // core instruction to allow user to choose item (coins) they wanna buy
+  ctx.accounts.swap_items(amount, sell_coin, buy_coin);
+
+  // } else if !ctx.accounts.has_enough_funds(amount)
   Ok(())
 }
