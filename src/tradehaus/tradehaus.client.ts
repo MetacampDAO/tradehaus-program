@@ -152,6 +152,9 @@ export class TradehausClient extends AccountUtils {
     playerFund: PublicKey,
     player: PublicKey | Keypair,
     gameConfig: PublicKey,
+    amount: number,
+    sellCoin: number,
+    buyCoin: number,
   ) {
     //whenever, this function is called
     //check if player is keypair or publickey 
@@ -160,9 +163,9 @@ export class TradehausClient extends AccountUtils {
     const signers = [];
     if (isKp(player)) signers.push(<Keypair>player)
     const txSig = await this.tradehausProgram.methods.swapItems(
-      amount,
-      sellCoin,
-      buyCoin,
+      toBN(amount),
+      toBN(sellCoin),
+      toBN(buyCoin),
     ).accounts({
       playerFund,
       player: isKp(player)? (<Keypair>player).publicKey : player,

@@ -21,6 +21,8 @@ pub struct SwapItems<'info> {
     constraint = Clock::get().unwrap().unix_timestamp < game_config.end_time.try_into().unwrap(),
   )]
   pub game_config: Account<'info, Game>,
+
+  pub system_program: Program<'info, System>,
 }
 
 impl<'info> SwapItems<'info> {

@@ -220,5 +220,27 @@ describe("tradehaus", () => {
     assert.ok(Number(_gameAcc.currentCap) == 1);
   })
 
+  it('swap items', async () => {
+    const [player_fund_pda, player_fund_bump] = await th.findPlayerFundPDA(
+      player1.publicKey,
+      gameConfig.publicKey,
+    );
+
+    await th.swapItems(
+      playerFund,
+      player1.publicKey,
+      gameConfig.publicKey,
+      100,
+      1,
+      2,
+    );
+
+    const _player1FundAcc = await th.fetchFundAcc(player_fund_pda);
+    const _gameAcc = await th.fetchFundAcc(gameConfig.publicKey);
+
+    //test 
+    assert.ok(Number);
+  })
+
 
 });
