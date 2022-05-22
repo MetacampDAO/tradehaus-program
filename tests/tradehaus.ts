@@ -3,7 +3,7 @@ import { Program } from "@project-serum/anchor";
 import { Tradehaus } from "../target/types/tradehaus";
 import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID, createMint, createAssociatedTokenAccount, mintTo, getAccount} from "@solana/spl-token";
-import chai, { assert, expect } from 'chai';
+import chai, { assert, AssertionError, expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 import { TradehausClient } from '../src';
@@ -221,25 +221,24 @@ describe("tradehaus", () => {
   })
 
   it('swap items', async () => {
-    const [player_fund_pda, player_fund_bump] = await th.findPlayerFundPDA(
-      player1.publicKey,
-      gameConfig.publicKey,
-    );
+    // const [player_fund_pda, player_fund_bump] = await th.findPlayerFundPDA(
+    //   player1.publicKey,
+    //   gameConfig.publicKey,
+    // );
 
     await th.swapItems(
-      playerFund,
+      _player1FundAcc,
       player1.publicKey,
       gameConfig.publicKey,
-      100,
-      1,
+      10000,
+      5,
       2,
     );
 
-    const _player1FundAcc = await th.fetchFundAcc(player_fund_pda);
-    const _gameAcc = await th.fetchFundAcc(gameConfig.publicKey);
-
+    // const _player1FundAcc = await th.fetchFundAcc(player_fund_pda);
     //test 
-    assert.ok(Number);
+    assert.ok(Number(_player1FundAcc.usdQty) == 90000);
+    assert.ok(Number(_player1FundAcc.ethQty) == 10000);
   })
 
 

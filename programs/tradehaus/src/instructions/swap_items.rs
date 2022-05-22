@@ -68,7 +68,5 @@ pub fn handler(ctx: Context<SwapItems>, amount: u128, sell_coin: u8, buy_coin: u
   // if no , then check if amount <= player_fund.sell_coin_qty
   // core instruction to allow user to choose item (coins) they wanna buy
   ctx.accounts.swap_items(amount, sell_coin, buy_coin);
-
-  // } else if !ctx.accounts.has_enough_funds(amount)
   Ok(())
 }
