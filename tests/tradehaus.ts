@@ -129,7 +129,7 @@ describe("tradehaus", () => {
   it ('creates game', async () => {
     const [reward_escrow_pda, reward_escrow_bump] = await th.findRewardEscrowPDA(gameConfig.publicKey);
 
-    const _START_TIME = Math.ceil(Date.now()/1000 + 30) 
+    const _START_TIME = Math.ceil(Date.now()/1000 + 5) 
 
     await th.createGame(
       gameConfig,
@@ -221,21 +221,24 @@ describe("tradehaus", () => {
   })
 
   it('swap items', async () => {
-    // const [player_fund_pda, player_fund_bump] = await th.findPlayerFundPDA(
-    //   player1.publicKey,
-    //   gameConfig.publicKey,
-    // );
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+    await delay(10000);
+    const [player_fund_pda, player_fund_bump] = await th.findPlayerFundPDA(
+      player1.publicKey,
+      gameConfig.publicKey,
+    );
 
     await th.swapItems(
-      _player1FundAcc,
-      player1.publicKey,
+      player_fund_pda,
+      player1,
       gameConfig.publicKey,
       10000,
       5,
       2,
     );
 
-    // const _player1FundAcc = await th.fetchFundAcc(player_fund_pda);
+    const _player1FundAcc = await th.fetchFundAcc(player_fund_pda);
+
     //test 
     assert.ok(Number(_player1FundAcc.usdQty) == 90000);
     assert.ok(Number(_player1FundAcc.ethQty) == 10000);

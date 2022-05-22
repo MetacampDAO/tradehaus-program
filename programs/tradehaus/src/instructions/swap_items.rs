@@ -7,8 +7,8 @@ pub struct SwapItems<'info> {
   // define accounts taken in by the swap_items instruction
   #[account(
       mut,
-      constraint = player_fund.player == *player.key,
-      constraint = player_fund.game_config == game_config.key(),
+      constraint = player_fund.player == *player.to_account_info().key,
+      constraint = player_fund.game_config == *game_config.to_account_info().key,
   )]
   pub player_fund: Account<'info, Fund>,
 
@@ -27,38 +27,64 @@ pub struct SwapItems<'info> {
 
 impl<'info> SwapItems<'info> {
   fn swap_items(&mut self, amount: u128, sell_coin: u8, buy_coin: u8) {
-    let mut sell_coin_fund = match sell_coin {
-      1 => self.player_fund.btc_qty,
-      2 => self.player_fund.eth_qty,
-      3 => self.player_fund.link_qty,
-      4 => self.player_fund.sol_qty,
-      5 => self.player_fund.usd_qty,
-      _ => self.player_fund.usd_qty,
-    };
-    if sell_coin_fund < amount {
-      // throw error
-      panic!("Error");
-    }
-    sell_coin_fund -= amount;
+    match sell_coin {
+      1 => {
+        self.player_fund.btc_qty -= amount;
+        Ok(self.player_fund.btc_qty)
+      },
+      2 => {
+        self.player_fund.eth_qty -= amount;
+        Ok(self.player_fund.eth_qty)
+      },
+      3 => {
+        self.player_fund.link_qty -= amount;
+        Ok(self.player_fund.link_qty)
+      },
+      4 => {
+        self.player_fund.sol_qty -= amount;
+        Ok(self.player_fund.sol_qty)
+      },
+      5 => {
+        self.player_fund.usd_qty -= amount;
+        Ok(self.player_fund.usd_qty)
+      },
+      _ => Err(ProgramError::Custom(1)),
+    }.unwrap();
 
-    let mut buy_coin_fund = match buy_coin {
-      1 => self.player_fund.btc_qty,
-      2 => self.player_fund.eth_qty,
-      3 => self.player_fund.link_qty,
-      4 => self.player_fund.sol_qty,
-      5 => self.player_fund.usd_qty,
-      _ => self.player_fund.usd_qty,
-    };
-    buy_coin_fund += convert_size(1) // price of sell_coin set to 1 for now
-      .checked_mul(amount)
-      .unwrap()
-      .checked_div(convert_size(1)) //price of buy_coin set to 1 for now
-      .unwrap();
+    let (sell_coin_price, buy_coin_price) = (1 as u128, 1 as u128);
+
+    match buy_coin {
+      1 => {
+        self.player_fund.btc_qty += find_buy_amt(amount, sell_coin_price, buy_coin_price);
+        Ok(self.player_fund.btc_qty)
+      }
+      2 => {
+        self.player_fund.eth_qty += find_buy_amt(amount, sell_coin_price, buy_coin_price);
+        Ok(self.player_fund.eth_qty)
+      }
+      3 => {
+        self.player_fund.link_qty += find_buy_amt(amount, sell_coin_price, buy_coin_price);
+        Ok(self.player_fund.link_qty)
+      }
+      4 => {
+        self.player_fund.sol_qty += find_buy_amt(amount, sell_coin_price, buy_coin_price);
+        Ok(self.player_fund.sol_qty)
+      }
+      5 => {
+        self.player_fund.usd_qty += find_buy_amt(amount, sell_coin_price, buy_coin_price);
+        Ok(self.player_fund.usd_qty)
+      },
+      _ => Err(ProgramError::Custom(1)),
+    }.unwrap();
   }
 }
 
-fn convert_size(v: u8) -> u128 {
-  u128::from(v)
+fn find_buy_amt(amount: u128, sell_coin_price: u128, buy_coin_price: u128) -> u128 {
+  sell_coin_price
+    .checked_mul(amount)
+    .unwrap()
+    .checked_div(buy_coin_price)
+    .unwrap()
 }
 
 pub fn handler(ctx: Context<SwapItems>, amount: u128, sell_coin: u8, buy_coin: u8) -> Result<()> {
